@@ -1,0 +1,94 @@
+\documentclass[10pt,journal,a4paper]{IEEEtran}
+
+% ==========================================
+% MODULES ET PACKAGES DE BASE
+% ==========================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\graphicspath{{images/}}
+\usepackage{xcolor}
+\usepackage{amsmath, amsfonts, amssymb}
+\usepackage{siunitx}
+\sisetup{locale = FR}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{listings}
+
+% ==========================================
+% DESIGN MODERNE
+% ==========================================
+\definecolor{ModernBlue}{RGB}{0, 82, 155}
+\definecolor{DarkGray}{RGB}{60, 60, 60}
+\definecolor{CodeGray}{rgb}{0.95,0.95,0.95}
+
+\usepackage{mathpazo} 
+\usepackage[scaled]{helvet} 
+
+\usepackage{titlesec}
+\titleformat{\section}{\color{ModernBlue}\sffamily\Large\bfseries}{\thesection.}{0.5em}{}[\vspace{-0.5em}\rule{\columnwidth}{0.5pt}]
+\titleformat{\subsection}{\color{ModernBlue!85}\sffamily\large\bfseries}{\thesubsection}{0.5em}{}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{} 
+\renewcommand{\headrulewidth}{0.4pt} 
+\renewcommand{\headrule}{\hbox to\headwidth{\color{ModernBlue}\leaders\hrule height \headrulewidth\hfill}}
+\fancyhead[L]{\textcolor{DarkGray}{\sffamily RF Harvesting}}
+\fancyhead[R]{\textcolor{DarkGray}{\sffamily \thepage}}
+\fancyfoot[C]{\textcolor{DarkGray}{\sffamily \thepage}}
+
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=ModernBlue, citecolor=ModernBlue, urlcolor=ModernBlue}
+
+\lstset{
+    backgroundcolor=\color{CodeGray}, 
+    basicstyle=\ttfamily\small, 
+    breaklines=true,
+    keywordstyle=\color{ModernBlue}\bfseries, 
+    commentstyle=\color{green!60!black}\itshape,
+    stringstyle=\color{red}, 
+    frame=single, 
+    rulecolor=\color{lightgray},
+    extendedchars=true,
+    literate=
+    {é}{{\'e}}1
+    {è}{{\`e}}1
+    {ê}{{\^e}}1
+    {à}{{\`a}}1
+    {ç}{{\c{c}}}1
+    {œ}{{\oe}}1
+    {ù}{{\`u}}1
+    {î}{{\^i}}1
+}
+
+% ==========================================
+% DÉBUT DU DOCUMENT
+% ==========================================
+\begin{document}
+
+\title{\sffamily \color{ModernBlue} \Huge Rapport de Projet \\ \LARGE RF Harvesting : Récupération d'Énergie Ambiante}
+
+\author{
+    \IEEEauthorblockN{\sffamily Mathis Rudkiewicz} \\
+    \IEEEauthorblockN{\sffamily Sébastien Vausort} \\
+    \IEEEauthorblockA{\sffamily Option E4a, ESEO -- 2026}
+}
+
+\maketitle
+\thispagestyle{fancy} 
+
+% --- Chargement des modules ---
+\input{sections/00_abstract.tex}
+\input{sections/01_introduction.tex}
+\input{sections/02_theorie.tex}
+\input{sections/03_resultats.tex}
+
+% ==========================================
+% BIBLIOGRAPHIE
+% ==========================================
+\bibliographystyle{IEEEtran}
+% \bibliography{biblio}
+
+\end{document}

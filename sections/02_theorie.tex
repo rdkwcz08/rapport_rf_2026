@@ -1,0 +1,17 @@
+\section{Fondements Théoriques}
+
+\subsection{L'équation de Friis et la puissance reçue}
+La puissance captée par notre antenne réceptrice dépend directement de la distance et des gains des antennes, et peut être modélisée par l'équation des télécommunications de Friis (Équation \ref{eq:friis}) :
+
+\begin{equation} \label{eq:friis}
+    P_{r} = P_{t} + G_{t} + G_{r} + 20\log_{10}\left(\frac{\lambda}{4\pi d}\right)
+\end{equation}
+
+Où $P_r$ est la puissance reçue en dBm, $\lambda$ la longueur d'onde en mètres, et $d$ la distance de la source en mètres.
+
+\subsection{Efficacité de conversion RF-DC}
+L'élément critique du système est la \textit{rectenna} (composée de l'antenne et du circuit redresseur). Le rendement global $\eta$ dépend fortement de la puissance RF incidente à l'entrée de la diode Schottky :
+
+\begin{equation} \label{eq:rendement}
+    \eta = \frac{P_{DC}}{P_{RF\_in}} \times 100
+\end{equation}
