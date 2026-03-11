@@ -1,6 +1,6 @@
 # 📘 Template LaTeX : Rapport d'Ingénierie Moderne (Base IEEE)
 
-Ce projet est un template LaTeX modulaire, professionnel et moderne, spécialement conçu pour les rapports d'ingénierie, de recherche ou de fin d'études. Il utilise la rigueur de la structure IEEE (double colonne) tout en y ajoutant une esthétique moderne (page de garde, couleurs, sommaire simple colonne).
+TEST SEB - Ce projet est un template LaTeX modulaire, professionnel et moderne, spécialement conçu pour les rapports d'ingénierie, de recherche ou de fin d'études. Il utilise la rigueur de la structure IEEE (double colonne) tout en y ajoutant une esthétique moderne (page de garde, couleurs, sommaire simple colonne).
 
 ---
 
