@@ -1,0 +1,72 @@
+\section*{Introduction}
+
+Energy harvesting refers to the process of capturing and converting ambient energy 
+from the surrounding environment into electrical power. Among us, various 
+available energy sources are existing, such as thermal, kinetic, solar, and 
+radiofrequency (RF). RF energy harvesting has emerged as a particularly promising 
+solution for powering autonomous, low-power electronic devices without the need for 
+conventional batteries or wired power supplies.
+
+RF energy is available almost everywhere in the electromagnetic spectrum through 
+everyday wireless technologies such as Wi-Fi routers, cellular base stations, 
+television broadcast towers, and Bluetooth devices. Although the power density of 
+these ambient RF signals is relatively low, recent advances in rectenna (rectifying 
+antenna) design and ultra-low-power electronics have made it feasible to harvest 
+sufficient energy for more and more applications, including wireless sensor networks, 
+implantable medical devices, and Internet of Things (IoT) sensors.
+
+A rectenna is the core component of any RF energy harvesting system. It consists of 
+a receiving antenna coupled to a rectifying circuit, which converts the incoming 
+alternating current (AC) RF signal into a usable direct current (DC) voltage. As 
+illustrated in Figure~\ref{fig:rf_system}, a complete RF energy harvesting chain 
+typically includes a matching circuit, a voltage multiplier (rectifier), an energy 
+storage element, and a microcontroller unit driving the target application. The 
+overall performance of such a system is primarily characterized by its RF-to-DC 
+power conversion efficiency (PCE), defined as:
+
+\begin{equation}
+    \eta_{RF-DC} = \frac{P_{DC}}{P_{RF}} = \frac{V_{DC}^2 / R_L}{P_{RF}}
+\end{equation}
+
+\noindent where $P_{RF}$ is the available input RF power, $V_{DC}$ is the output DC 
+voltage, and $R_L$ is the load resistance. Maximizing this efficiency requires 
+careful co-design of the antenna, the impedance matching network, and the rectifier 
+topology.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.45\textwidth]{systeme_rf.png}
+    \caption{Block diagram of a complete RF energy harvesting system, from the 
+    receiving antenna ($P_{RF}$) to the application unit ($P_{DC}$).}
+    \label{fig:rf_system}
+\end{figure}
+
+The rectifier topology plays a critical role in determining both the conversion 
+efficiency and the output voltage level. Figure~\ref{fig:topologies} presents the 
+three conventional rectenna topologies considered in the literature: the series 
+topology (a), the shunt topology (b), and the single voltage doubler topology (c). 
+In this study, the one-diode (series or shunt) and the two-diode (voltage doubler) 
+configurations are designed, simulated, and experimentally compared.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.45\textwidth]{topologies.png}
+    \caption{Conventional rectenna topologies: (a) series; (b) shunt; 
+    (c) single voltage doubler.}
+    \label{fig:topologies}
+\end{figure}
+
+The objective of this practical work is to design, simulate, and characterize two AC-to-DC converter topologies, a one-diode topology and a 
+two-diode topology, for low-power RF energy harvesting applications. Analysis are 
+carried out using the Keysight Advanced Design System (ADS) professional software, 
+with operating frequencies selected within the 1.5--3~GHz range, covering widely 
+used ISM bands such as 2.45~GHz. Both lumped-element (LC) and distributed impedance (microstrip line) matching strategies are investigated and compared.
+
+The report is structured as follows. Section~\ref{sec:task2} presents the choice 
+of application, operating frequency, and Schottky diode. Section~\ref{sec:task3} 
+details the design and simulation of the one-diode rectifier topology, including 
+impedance matching optimization. Section~\ref{sec:task4} extends this analysis to 
+the two-diode configuration. Section~\ref{sec:task5} describes the PCB design, 
+fabrication process, and experimental measurements. Finally, a comparative 
+discussion and conclusion are provided, assessing the suitability of each topology 
+for the targeted low-power application.

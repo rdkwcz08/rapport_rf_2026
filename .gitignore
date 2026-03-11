@@ -1,0 +1,28 @@
+# Core LaTeX build files
+*.aux
+*.log
+*.lof
+*.lot
+*.fls
+*.out
+*.toc
+*.fmt
+*.fot
+*.cb
+*.cb2
+*.fdb_latexmk
+*.synctex.gz
+*.synctex
+*.bbl
+*.blg
+*.bcf
+
+# PDF compilé
+*.pdf
+
+# Build
+latex.out/
+*.nav
+*.snm
+*.vrb
+*.tdo
