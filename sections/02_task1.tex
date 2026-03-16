@@ -1,0 +1,44 @@
+\section{Task 1 : Impedance Matching}
+\label{sec:task1}
+
+\subsection{Goals of this task}
+The main objective of this step is to design a matching circuit to maximize energy transfert from
+ an input impedance of an antenna and an output impedance of a Schottky diode. 
+ In an RF harvesting system, an antenna circuit have an impedance ($Z_{in}$) of 50 $\Omega$. 
+ This is a compromise between loss and power transmission. On the other hand, a Schottky diode 
+ (who act like a charge) have a complex impédance ($Z_{diode}$) which is not fix regarding the frequency 
+ of the system. Without any adaptation, there will be a high reflexion of catched energy by the antenna, 
+ this problem will minimize the efficiency of our system.
+
+\subsection{Modelling}
+
+To simulate the behavior with the Keysight ADS software, we wanted to transform the complexe impédence 
+of the diode to passives components like resistors and capacitors. There is the complex form of an impedance :  
+
+\begin{equation} \label{eq:complex_form_impedance}
+    Z = R + jX
+\end{equation}
+
+The real part ($R$) represent the resistive part of the diode. 
+This is why this part is modelized by a simple resistor in the simulator.
+
+The imaginary part ($X$) is the reactance of the component. 
+With a Schottky diode, this reactance is negative, that means that we can replace this with a capacitor in the software
+
+To modelize this imaginary part in the simulator, we need to calculate the capacitor’s value. 
+We used this equation de determine this value
+
+\begin{equation} \label{eq:capacitor_value}
+    C = -\frac{1}{2\pi f X}
+\end{equation}
+
+\subsection{Expected results}
+
+When the diode was modelized by its equivalent RC circuit, we added a LC filter between the source (50 $\Omega$) 
+and the charge (Schottky diode). This filter’s objective is to compensate the imaginary part of the diode and 
+keep a 5O $\Omega$ impedance at the expected frequency.
+
+We use a method included in the Keysight’s software. This is a tool to tune dynamicaly the value of the 
+inductance and the capacitor of the filter. The goal is to find a “dip” in the chart at the expected frequency. 
+this “dip” is the optimal resonance of the system. Regarding the specifications, we want to obtain a $S_{11}$ 
+parameter (reflexion coeficient) lower than -10 db at the wanted frequency.
