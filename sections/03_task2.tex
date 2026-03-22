@@ -33,6 +33,27 @@ which maximizes the RF-to-DC conversion efficiency.
 \subsection{Which diode do we need ?}
 
 We compared three models from the HSMS series to find the best diode for our 2.2 GHz target frequency. 
+Main parameters we focused on are : \begin{enumerate}
+    \item \textbf{Saturation current $I_s$}
+    \begin{itemize}
+        \item Represents the current flowing at zero voltage. The higher $I_s$, the more easily the diode conducts at low voltage
+    \end{itemize}
+
+    \item \textbf{Series resistance $R_s$}
+    \begin{itemize}
+        \item Internal parasitic resistance of the diode. The lower $R_s$, the lower the Joule losses
+    \end{itemize}
+
+    \item \textbf{Junction capacitance $C_j$}
+    \begin{itemize}
+        \item This is the most critical parameter at high frequency. The lower $C_j$, the lower the insertion losses at high frequency
+    \end{itemize}
+
+    \item \textbf{Maximum operating frequency $F$}
+    \begin{itemize}
+        \item The diode must be able to operate at the target frequency
+    \end{itemize}
+\end{enumerate}
 The HSMS-2850 has a low threshold voltage, but it is designed to operate at frequencies below 1.5 GHz. 
 Therefore, we cannot use it for our 2.2 GHz application. The HSMS-2820 can work up to 4 GHz, but it has a 
 junction capacitance of 0.7 pF. At 2.2 GHz, this capacitance would cause significant insertion losses. 
