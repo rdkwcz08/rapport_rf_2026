@@ -1,0 +1,57 @@
+\section{Task 2 : Choice of application, diode and frequency}
+\label{sec:task2}
+
+\subsection{Sensor and frequency}
+For the project, we needed to supply an ultra low power sensor. The choosed component is STTS22H, 
+a temperature sensor made by STMicroelectronics. We can justify this choice with its ideals caracteristics 
+for energy harvesting. It’s an I2C temperature sensor working between 1.5V and 3.6V and it can be on with 
+an ultra low supply current under 120 µA. To harvest ambient energy, we choosed 2.2 GHz frequency. 
+This frequency is between 1.5 and 3 GHz wanted in the specifications.
+
+\subsection{CMOS Diodes vs Schottky Diodes}
+Harvesting RF signals (which are often very weak, around a microwatt) requires an extremely sensitive and fast AC-DC rectifier.
+
+- CMOS Diodes (P-N Junction): These are based on a junction of P-doped and N-doped semiconductors. 
+They have a relatively high threshold voltage (usually between 0.6 V and 0.7 V). 
+Additionally, their switching time is limited by the recombination of minority charge carriers. 
+Therefore, they are not suitable for rectifying very weak, high-frequency RF signals.
+
+- Schottky Diodes: These use a metal-semiconductor junction. This structure provides a much lower threshold voltage 
+(typically between 0.15 V and 0.3 V), allowing the rectification to start even with very low input power. 
+Moreover, since the current is carried by majority carriers, there is no delay caused by recombination. 
+This enables the ultra-fast switching required at gigahertz (GHz) frequencies.
+
+\subsection{BAV99 and HSMS-28xx series diodes}
+The BAV99 is a standard silicon switching diode (P-N). Because of its high threshold voltage 
+and large junction capacitance, it would severely weaken the signal at 2.2 GHz. It would also 
+require much more input power than an energy harvesting antenna can actually provide.
+
+The HSMS-28xx series consists of Schottky diodes specifically designed for RF detection and energy harvesting. 
+They are optimized to offer minimal junction capacitance (Cj) and very low series resistance (Rs), 
+which maximizes the RF-to-DC conversion efficiency.
+
+\subsection{Which diode do we need ?}
+
+We compared three models from the HSMS series to find the best diode for our 2.2 GHz target frequency. 
+The HSMS-2850 has a low threshold voltage, but it is designed to operate at frequencies below 1.5 GHz. 
+Therefore, we cannot use it for our 2.2 GHz application. The HSMS-2820 can work up to 4 GHz, but it has a 
+junction capacitance of 0.7 pF. At 2.2 GHz, this capacitance would cause significant insertion losses. 
+The HSMS-2860 works up to 5.8 GHz and has a very low junction capacitance of 0.18 pF.
+
+The HSMS-2860 diode is the best choice for our matching and rectifying circuit at 2.2 GHz. 
+Its low parasitic parameters will guarantee the best conversion efficiency to power the STTS22H sensor.
+
+\begin{table}[h]
+    \centering
+    \caption{Schottky diodes compraison for RF energy harvesting applications at 2.2 GHz.}
+    \label{tab:diodes_comparison}
+    \begin{tabular}{lcccc}
+        \toprule
+        \textbf{Diode} & \textbf{($I_s$)} & \textbf{($R_s$)} & \textbf{($C_j$)} & \textbf{($F$)}\\
+        \midrule
+        HSMS-2820 & \SI{22}{\nano\ampere} & \SI{6}{\ohm} & \SI{0.7}{\pico\farad} & up to \SI{4}{\giga\hertz} \\
+         HSMS-2850 & \SI{3000}{\nano\ampere} & \SI{25}{\ohm} & \SI{0.18}{\pico\farad} & below \SI{1.5}{\giga\hertz} \\
+        HSMS-2860   & \SI{50}{\nano\ampere} & \SI{6}{\ohm} & \SI{0.18}{\pico\farad} & up to \SI{5.8}{\giga\hertz} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
