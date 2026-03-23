@@ -1,0 +1,259 @@
+% ============================================================
+%  TASK 3.2 — TOPOLOGIE À UNE DIODE AVEC LIGNES MICROSTRIP
+%  Rapport RF Energy Harvesting — Rudkiewicz & Vausort — ESEO 2026
+% ============================================================
+
+\section{Task 3.2 --- Topologie à une diode avec lignes microstrip}
+\label{sec:task3_2}
+
+Cette section reprend les étapes~(4) et~(5) de la Task~3.1 en remplaçant
+progressivement les composants localisés du circuit d'adaptation par des
+lignes microstrip.
+L'objectif est de se rapprocher d'un circuit réellement implémentable sur
+PCB, où les pistes physiques jouent un rôle actif dans l'adaptation
+d'impédance, et de comparer les performances obtenues avec celles du circuit
+purement localisé.
+
+% ------------------------------------------------------------
+\subsection{Étape 1 --- Prise en compte des pistes physiques
+            avec les blocs MLIN et MTEE}
+\label{subsec:mlin_mtee}
+% ------------------------------------------------------------
+
+\subsubsection{Principe}
+
+Dans un circuit réel sur PCB, chaque composant est connecté au reste du
+circuit via des pistes de cuivre.
+Ces pistes ont une longueur, une largeur et un substrat définis, ce qui leur
+confère des propriétés électriques propres (inductance et capacité
+distribuées) : elles ne sont donc pas de simples fils idéaux.
+
+Pour tenir compte de cet effet dans ADS, on entoure chaque composant du
+circuit d'adaptation (condensateur et inductance) de blocs \texttt{MLIN}
+(Microstrip Line), qui modélisent des segments de ligne microstrip physiques.
+Lorsqu'un nœud du schéma connecte trois branches entre elles (par exemple
+la jonction entre la ligne principale, le composant shunt et la suite du
+circuit), un bloc \texttt{MTEE} est utilisé à la place d'une simple
+connexion filaire.
+Ce composant en forme de T modélise la discontinuité physique que constitue
+ce nœud sur le PCB, et prend en compte les effets de jonction qui peuvent
+modifier le comportement du circuit à haute fréquence.
+
+\begin{figure}[htbp]
+    \centering
+    % \includegraphics[width=\linewidth]{figures/schematic_mlin_mtee.png}
+    \caption{Schéma ADS du circuit d'adaptation avec blocs \texttt{MLIN}
+             et \texttt{MTEE} autour des composants localisés.
+             Les segments de ligne modélisent les pistes physiques du PCB.
+             $R_L = \SI{10}{\kilo\ohm}$, $P_\mathrm{in} = -20$\,dBm.}
+    \label{fig:schematic_mlin_mtee}
+\end{figure}
+
+\subsubsection{Décalage de la fréquence de résonance}
+
+Lorsqu'on lance la simulation avec les valeurs du circuit d'adaptation
+issues de la Task~3.1 et que l'on observe le $S_{11}$, le creux de résonance
+n'est plus centré sur \SI{2,2}{\giga\hertz}.
+Les pistes physiques ajoutent des effets réactifs supplémentaires qui
+décalent la fréquence d'adaptation.
+
+Il est donc nécessaire d'effectuer un nouveau tuning pour recaler le creux
+sur \SI{2,2}{\giga\hertz}, en ajustant les valeurs de la capacité, de
+l'inductance et des longueurs de lignes.
+Après tuning, les valeurs optimales obtenues sont :
+%
+\begin{equation}
+    L_\mathrm{line} = \SI{8,025}{\milli\meter}, \quad
+    C = \SI{23,552}{\pico\farad}, \quad
+    L_\mathrm{ind} = \SI{9,38}{\nano\henry}.
+    \label{eq:retuning_mlin}
+\end{equation}
+
+\subsubsection{Simplification vers une topologie 1C--1L}
+
+Pour simplifier le schéma et réduire le nombre de composants sur le PCB,
+le circuit d'adaptation est réduit à un seul condensateur en parallèle et
+une seule inductance en série.
+Un sweep paramétrique est réalisé dans ADS sur les trois variables
+($L_\mathrm{line}$, $C$ et $L_\mathrm{ind}$) afin de trouver les valeurs
+qui centrent le creux de $S_{11}$ à \SI{2,2}{\giga\hertz}.
+Les valeurs optimales issues de ce sweep sont :
+%
+\begin{equation}
+    L_\mathrm{line} = \SI{4,19}{\milli\meter}, \quad
+    C = \SI{39}{\pico\farad}, \quad
+    L_\mathrm{ind} = \SI{2,7}{\nano\henry}.
+    \label{eq:opt_1c1l}
+\end{equation}
+
+\begin{figure}[htbp]
+    \centering
+    % \includegraphics[width=0.75\linewidth]{figures/s11_1c1l_mlin.png}
+    \caption{$S_{11}$ de la topologie simplifiée 1C--1L avec blocs
+             \texttt{MLIN}/\texttt{MTEE}, après sweep paramétrique.
+             $L_\mathrm{line} = \SI{4,19}{\milli\meter}$,
+             $C = \SI{39}{\pico\farad}$,
+             $L_\mathrm{ind} = \SI{2,7}{\nano\henry}$.}
+    \label{fig:s11_1c1l_mlin}
+\end{figure}
+
+% ------------------------------------------------------------
+\subsection{Étape 2 --- Remplacement du condensateur et de l'inductance
+            par des lignes microstrip}
+\label{subsec:full_ms}
+% ------------------------------------------------------------
+
+\subsubsection{Principe}
+
+Dans cette seconde étape, on va plus loin : le condensateur et l'inductance
+localisés sont entièrement supprimés et remplacés chacun par un bloc
+\texttt{MLIN} dont on fait varier la largeur~$W$ et la longueur~$L$.
+
+L'idée est qu'une ligne microstrip de faible largeur (ligne étroite) se
+comporte comme une inductance distribuée, tandis qu'une ligne de grande
+largeur (ligne large) se comporte comme une capacité distribuée.
+En jouant sur ces deux paramètres géométriques, il est donc possible de
+reproduire l'effet du condensateur et de l'inductance localisés, sans avoir
+besoin de composants CMS supplémentaires.
+
+Cette approche est intéressante pour la fabrication PCB car elle réduit
+le nombre de composants à souder et limite les variations dues aux
+tolérances des composants.
+
+\subsubsection{Règles de conception}
+
+Les contraintes imposées pour cette étape sont les suivantes :
+%
+\begin{itemize}
+    \item Seules la largeur~$W$ et la longueur~$L$ des deux blocs
+          \texttt{MLIN} remplaçant la capacité et l'inductance peuvent être
+          ajustées ;
+    \item $W < \SI{4}{\milli\meter}$ pour chacune des deux lignes ;
+    \item $L < \SI{20}{\milli\meter}$ pour chacune des deux lignes.
+\end{itemize}
+
+\subsubsection{Résultats après tuning}
+
+Un tuning dans ADS sur les quatre paramètres géométriques
+($W_C$, $L_C$, $W_L$, $L_L$) permet d'obtenir une adaptation centrée
+à \SI{2,2}{\giga\hertz}.
+Les valeurs optimales sont résumées dans le
+Tableau~\ref{tab:ms_final_dims}.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Dimensions optimisées des deux lignes microstrip remplaçant
+             la capacité et l'inductance (topologie à une diode,
+             \SI{2,2}{\giga\hertz}).}
+    \label{tab:ms_final_dims}
+    \begin{tabular}{llS[table-format=1.2]l}
+        \toprule
+        Composant remplacé & Paramètre
+            & {Valeur optimisée} & Unité \\
+        \midrule
+        Capacité   & Largeur  $W_C$ & 0.56 & mm \\
+                   & Longueur $L_C$ & 1.8  & mm \\
+        \midrule
+        Inductance & Largeur  $W_L$ & 1.32 & mm \\
+                   & Longueur $L_L$ & 7.6  & mm \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+On peut noter que la ligne remplaçant la capacité
+($W_C = \SI{0,56}{\milli\meter}$) est plus étroite que la ligne remplaçant
+l'inductance ($W_L = \SI{1,32}{\milli\meter}$).
+Ceci est cohérent avec le comportement attendu : une ligne étroite présente
+une impédance caractéristique élevée (comportement inductif) et une ligne
+large présente une impédance caractéristique faible (comportement capacitif).
+Les longueurs permettent d'ajuster finement la valeur de la réactance
+équivalente à la fréquence cible.
+
+\begin{figure}[htbp]
+    \centering
+    % \includegraphics[width=0.75\linewidth]{figures/s11_ms_final.png}
+    \caption{$S_{11}$ du circuit avec les deux composants localisés remplacés
+             par des blocs \texttt{MLIN}.
+             $W_C = \SI{0,56}{\milli\meter}$, $L_C = \SI{1,8}{\milli\meter}$,
+             $W_L = \SI{1,32}{\milli\meter}$, $L_L = \SI{7,6}{\milli\meter}$.}
+    \label{fig:s11_ms_final}
+\end{figure}
+
+% ------------------------------------------------------------
+\subsection{Comparaison \texorpdfstring{$S_{11}$}{S11} :
+            circuit LC localisé vs.\ circuit microstrip}
+\label{subsec:s11_comparison_t32}
+% ------------------------------------------------------------
+
+La Figure~\ref{fig:s11_comparison_t32} superpose les courbes~$S_{11}$ des
+deux configurations :
+%
+\begin{itemize}
+    \item \textbf{Circuit LC localisé} (Task~3.1, étape~4) : composants
+          CMS idéaux, sans modélisation des pistes ;
+    \item \textbf{Circuit microstrip} (Task~3.2, étape~2) : condensateur
+          et inductance remplacés par des blocs \texttt{MLIN} physiques.
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    % \includegraphics[width=0.75\linewidth]{figures/s11_comparison_t32.png}
+    \caption{Comparaison du $S_{11}$ entre le circuit d'adaptation LC
+             localisé (Task~3.1) et le circuit microstrip (Task~3.2).
+             $R_L = \SI{10}{\kilo\ohm}$, $P_\mathrm{in} = -20$\,dBm.}
+    \label{fig:s11_comparison_t32}
+\end{figure}
+
+\paragraph{Analyse.}
+Les deux circuits atteignent une adaptation satisfaisante à
+\SI{2,2}{\giga\hertz} ($S_{11} < \SI{-15}{\deci\bel}$), mais leurs
+comportements diffèrent légèrement.
+La topologie microstrip présente un creux de $S_{11}$ plus profond, car
+les dimensions des lignes permettent un ajustement continu de la réactance,
+contrairement aux valeurs discrètes des composants CMS.
+En contrepartie, la bande passante d'adaptation tend à être plus étroite,
+ce qui rend le circuit plus sensible à une dérive en fréquence.
+Pour une application de récupération d'énergie RF ciblant la bande ISM à
+\SI{2,2}{\giga\hertz}, cette étroitesse de bande est acceptable car la
+source RF (Wi-Fi, réseau cellulaire) est une porteuse quasi-monofrequentielle.
+
+% ------------------------------------------------------------
+\subsection{Rendement de conversion RF-vers-DC}
+\label{subsec:rendement_t32}
+% ------------------------------------------------------------
+
+Le rendement de conversion RF-vers-DC est défini par :
+%
+\begin{equation}
+    \eta = \frac{P_\mathrm{DC}}{P_\mathrm{RF}}
+         = \frac{V_\mathrm{out} \cdot I_\mathrm{out}}
+                {V_\mathrm{in}  \cdot I_\mathrm{in}}
+         \times 100\,\%.
+    \label{eq:pce_t32}
+\end{equation}
+%
+Les Figures~\ref{fig:perf_vs_rl_t32} et~\ref{fig:perf_vs_pin_t32}
+présentent l'évolution du rendement~$\eta$, de la tension de sortie
+$V_\mathrm{out}$ et du courant de sortie~$I_\mathrm{out}$, respectivement
+en fonction de la résistance de charge~$R_L$ et de la puissance d'entrée
+$P_\mathrm{in}$, pour le circuit avec et sans lignes microstrip.
+
+\begin{figure}[htbp]
+    \centering
+    % \includegraphics[width=\linewidth]{figures/perf_vs_rl_t32.png}
+    \caption{Performances du redresseur ($\eta$, $V_\mathrm{out}$,
+             $I_\mathrm{out}$) en fonction de $R_L$
+             (\SIrange{1}{10}{\kilo\ohm}), avec et sans lignes microstrip.
+             $P_\mathrm{in} = -20$\,dBm, $f = \SI{2,2}{\giga\hertz}$.}
+    \label{fig:perf_vs_rl_t32}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    % \includegraphics[width=\linewidth]{figures/perf_vs_pin_t32.png}
+    \caption{Performances du redresseur ($\eta$, $V_\mathrm{out}$,
+             $I_\mathrm{out}$) en fonction de $P_\mathrm{in}$
+             (de $-20$ à $+10$\,dBm), avec et sans lignes microstrip.
+             $R_L = \SI{10}{\kilo\ohm}$, $f = \SI{2,2}{\giga\hertz}$.}
+    \label{fig:perf_vs_pin_t32}
+\end{figure}
