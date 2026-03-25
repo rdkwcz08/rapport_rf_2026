@@ -23,7 +23,7 @@
 \section{Task 3.1 --- One-Diode Rectifier Topology}
 \label{sec:task3_1}
 
-This section presents now the full characterization of the one-diode rectifier
+This part presents the full characterization of the one-diode rectifier
 topology implemented with the HSMS-2860 Schottky diode at an operating
 frequency of \SI{2.2}{\giga\hertz}.
 The analysis will follow a systematic progression : (1) characterization of the diode
@@ -38,80 +38,88 @@ and output current~$I_\mathrm{out}$.
 \label{subsec:zin_vs_freq}
 % ------------------------------------------------------------
 
-\subsubsection{Circuit topology}
 
 Before extracting the diode input impedance, it is important to understand the
 structure of the one-diode rectifier simulated in ADS, shown in
 Figure~\ref{fig:schematic_one_diode}.
-The circuit consists of the following elements, connected in the series topology
-(Figure~2a of the introduction):
+The circuit is composed of the following elements:
 
 \begin{itemize}
     \item \textbf{RF source:} a single-tone power source \texttt{P\_1Tone}
           (PORT1, $Z = \SI{50}{\ohm}$) sweeping from \SIrange{1}{3}{\giga\hertz},
           delivering a power $P = \mathrm{polar}(\mathrm{dbmtow}(P_\mathrm{in}), 0)$,
-          which converts the input power from dBm to Watts in polar form.
+          which converts the input power from dBm to Watts in polar form. It simulates the antenna behavior. 
 
     \item \textbf{DC-blocking / RF choke network:} two capacitors
-          $C_1 = C_2 = \SI{100}{\pico\farad}$ placed in series on the signal path
-          and in shunt at the output respectively.
-          $C_1$ blocks any DC component from reaching the source, while $C_2$
-          shorts the RF signal to ground at the output node, acting as an
-          RF bypass capacitor that forces the load to see only the rectified DC
-          voltage.
+      $C_1 = C_2 = \SI{100}{\pico\farad}$ placed in series on the 
+      signal path and in shunt at the output respectively.
+      $C_1$ blocks any DC component from reaching the source, while 
+      $C_2$ shorts the RF signal to ground at the output node, acting 
+      as an RF bypass capacitor that forces the load to see only the 
+      rectified DC voltage.
 
-    \item \textbf{Schottky diode D1:} the HSMS-2860 model
-          (\texttt{di\_hp\_HSMS2860\_20000301}), placed in series between the
+    \item \textbf{Schottky diode D1:} the HSMS-2860 model is placed in series between the
           RF input and the output node.
           In this series topology, the diode rectifies the RF signal by conducting
           only during positive half-cycles, charging $C_2$ to a DC voltage.
 
-    \item \textbf{Load resistor:} $R_1 = R_L$, representing the equivalent
-          input resistance of the target sensor (STTS22H).
-          For impedance extraction, $R_L = \SI{10}{\kilo\ohm}$.
+    \item \textbf{Load resistor:} $R_1 = R_L$, represents the equivalent
+          input resistance of tour sensor (STTS22H).
+          Here we have, $R_L = \SI{10}{\kilo\ohm}$ for the moment.
 \end{itemize}
 
-Two current probes (\texttt{I\_Probe1} on the input path, \texttt{I\_Probe2}
-on the output path) monitor the RF input current and the DC output current
-respectively.
-The LSSP harmonic-balance solver is used rather than a linear $S$-parameter
-simulation because the diode is a nonlinear component: its operating point
-depends on the RF drive level, making large-signal analysis mandatory.
-The impedance $Z_\mathrm{in}$ is extracted via the ADS equation block:
+More on the simulation and measurements parts, we have two current probes (\texttt{I\_Probe1} on the input path, \texttt{I\_Probe2}
+on the output path). They are respectively measuring the RF input current and the DC output current. On the other side, 
+the LSSP harmonic-balance solver is a linear $S$-parameter
+simulation because the diode is a nonlinear component (its behavior
+depends on the RF level, this force us large to use signal analysis). Finaly, the impedance $Z_\mathrm{in}$ is extracted via the ADS equation block:
 \texttt{Zin1 = zin(S11, PortZ1)}.
 
 \begin{figure}[htbp]
     \centering
-    % \includegraphics[width=\linewidth]{figures/schematic_one_diode.png}
+    \includegraphics[width=\linewidth]{images/schematic_one_diode.png}
     \caption{ADS schematic of the one-diode series rectifier used for
-             input impedance extraction.
-             The LSSP simulation sweeps from 1 to 3\,GHz.
-             D1: HSMS-2860; $C_1 = C_2 = 100$\,pF; $R_L = 10$\,k$\Omega$;
-             $P_\mathrm{in} = -20$\,dBm.}
+             input impedance extraction.}
     \label{fig:schematic_one_diode}
 \end{figure}
 
 \subsubsection{Simulation setup}
 
-The input impedance $Z_\mathrm{in,diode}$ of the HSMS-2860 is extracted using
-a Large-Signal $S$-Parameter (LSSP) simulation in Keysight ADS over the
+The input impedance $Z_\mathrm{indiode}$ of the HSMS-2860 is extracted using
+a LSSP (Large-Signal S-Parameter) simulation in Keysight ADS over the
 frequency range \SIrange{1}{3}{\giga\hertz}, with a frequency step of
 \SI{1}{\mega\hertz}.
 The operating conditions are fixed at $P_\mathrm{in} = -20\,\text{dBm}$ and
 $R_L = \SI{10}{\kilo\ohm}$.
-The impedance is computed from the $S_{11}$ parameter measured at Port~1
-(source impedance $Z_0 = \SI{50}{\ohm}$) using the standard relation:
+The problem is that, the input impedance $Z_\mathrm{in}$ of the diode cannot be measured 
+directly in ADS. Instead, the simulator measures the reflection 
+coefficient $S_{11}$ at Port~1, which represents the ratio of the 
+reflected wave to the incident wave at the port. Since any impedance 
+mismatch between the source ($Z_0 = \SI{50}{\ohm}$) and the diode 
+causes a partial reflection of the incident signal, $S_{11}$ has 
+the full information needed to recover $Z_\mathrm{in}$. The conversion could be done by using this relation:
 %
 \begin{equation}
-    Z_\mathrm{in} = \mathrm{zin}(S_{11}, Z_0)
-    = Z_0 \,\frac{1 + S_{11}}{1 - S_{11}}.
+    Z_\mathrm{in} = Z_0 \,\frac{1 + S_{11}}{1 - S_{11}},
     \label{eq:zin_from_s11}
 \end{equation}
 %
-The 100\,pF capacitors act as RF short-circuits at \SI{2.2}{\giga\hertz}
-($X_C = 1/(2\pi \times 2.2\times10^9 \times 100\times10^{-12}) \approx
-\SI{0.72}{\ohm} \ll \SI{50}{\ohm}$), so they do not affect the RF impedance
-measurement while correctly isolating the DC output path.
+which is evaluated in ADS via the built-in function 
+\texttt{zin(S11, PortZ1)}.
+If $S_{11} = 0$ (no reflection), 
+and gives $Z_\mathrm{in} = Z_0 = 
+\SI{50}{\ohm}$, confirming perfect matching. On the other hand, if $S_{11} = -1$ 
+(total reflection, short circuit), it gives $Z_\mathrm{in} = 0$.
+
+Regarding the two \SI{100}{\pico\farad} capacitors $C_1$ and $C_2$: 
+at \SI{2.2}{\giga\hertz}, their impedance is only
+$X_C = 1/(2\pi f C) \approx \SI{0.72}{\ohm}$, which is negligible 
+compared to $Z_0 = \SI{50}{\ohm}$. Therefore the behave as 
+short-circuits at RF frequencies and do not disturb the impedance 
+measurement of the diode. At DC, a capacitor blocks any 
+current flow, this means that $C_1$ prevents the 
+rectified DC voltage from flowing back into the source, and $C_2$ 
+ensures that the load $R_L$ receives a clean DC voltage.
 
 % ------------------------------------------------------------
 \subsection{Influence of \texorpdfstring{$P_\mathrm{in}$}{Pin} and
