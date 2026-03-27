@@ -1,6 +1,6 @@
 % ============================================================
 %  TASK 3.2 — ONE-DIODE TOPOLOGY WITH MICROSTRIP LINES
-%  RF Energy Harvesting Report — Rudkiewicz & Vausort — ESEO 2026
+%  RF Energy Harvesting Report
 % ============================================================
 
 \section{Task 3.2 --- One-Diode Topology with Microstrip Lines}
@@ -15,201 +15,243 @@ impedance matching, and to compare the results with those obtained using
 the purely lumped circuit.
 
 % ------------------------------------------------------------
-\subsection{Step 1 --- Accounting for Physical Traces
-            Using MLIN and MTEE Blocks}
-\label{subsec:mlin_mtee}
+\subsection{Substrate and design rules}
+\label{subsec:design_rules}
 % ------------------------------------------------------------
 
-\subsubsection{Principle}
+The physical PCB implementation has specific design rules for this
+project :
+%
+\begin{itemize}
+    \item Substrate: Rogers 4350B ($\varepsilon_r = 4.5$,
+          $\tan\delta = 0.02$, $H = \SI{1.6}{\milli\meter}$,
+          copper thickness $T = \SI{0}{\milli\meter}$ in ADS model);
+    \item Signal traces: characteristic impedance $Z_0 = \SI{50}{\ohm}$,
+          corresponding to $W = \SI{3.034}{\milli\meter}$;
+    \item Microstrip line length constraints:
+          $\SI{3}{\milli\meter} \leq L_\mathrm{line} \leq \SI{10}{\milli\meter}$;
+    \item SMD package: 0603.
+\end{itemize}
+%
+Each lumped component (capacitor, inductor) is surrounded by two
+microstrip lines on either side, connected with T-junction
+elements to model the physical routing on the PCB.
+All line segments use $W = \SI{3.034}{\milli\meter}$, consistent with
+$Z_0 = \SI{50}{\ohm}$. Here is the global schematic : 
 
-In a real PCB circuit, every component is connected to the rest of the
-circuit through copper traces.
-These traces have a defined length, width, and substrate, which gives them
-their own electrical properties (distributed inductance and capacitance):
-they therefore cannot be treated as ideal wires.
-
-To account for this in ADS, each component of the matching network
-(capacitor and inductor) is surrounded by \texttt{MLIN} (Microstrip Line)
-blocks, which model physical microstrip line segments.
-When a node in the schematic connects three branches together (for example,
-the junction between the main line, the shunt component, and the rest of
-the circuit), an \texttt{MTEE} block is used instead of a simple wire
-connection.
-This T-shaped component models the physical discontinuity that such a
-junction creates on a PCB, and accounts for the junction effects that can
-alter the circuit behavior at high frequency.
-
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
-    % \includegraphics[width=\linewidth]{figures/schematic_mlin_mtee.png}
-    \caption{ADS schematic of the matching network with \texttt{MLIN}
-             and \texttt{MTEE} blocks surrounding the lumped components.
-             The line segments model the physical PCB traces.
-             $R_L = \SI{10}{\kilo\ohm}$, $P_\mathrm{in} = -20$\,dBm.}
-    \label{fig:schematic_mlin_mtee}
+    \includegraphics[width=\linewidth]{images/schema_1d_lc_ms.png}
+    \caption{ADS simulation of the one-diode series rectifier, lumped-circuit and microstrip lines matching circuit.}
+    \label{fig:schema_1d_lc_ms}
 \end{figure}
 
-\subsubsection{Resonance Frequency Shift}
+% ------------------------------------------------------------
+\subsection{Effect of microstrip parasitics on resonance frequency}
+\label{subsec:mlin_parasitics}
+% ------------------------------------------------------------
 
-When the simulation is run using the matching network values from Task~3.1
-and the $S_{11}$ is observed, the resonance dip is no longer centered at
-\SI{2.2}{\giga\hertz}.
-The physical traces introduce additional reactive effects that shift the
-matching frequency.
+When the MLIN segments are introduced into the simulation while keeping
+the original lumped component values unchanged, the $S_{11}$ resonance shifts from
+\SI{2.2}{\giga\hertz} to approximately \SI{1.8}{\giga\hertz}
+(Figure~\ref{fig:schema_1d_lc_ms}).
+The degradation is caused by the additional inductance and capacitance
+contributed by the microstrip lines, which effectively increase the total
+reactive energy stored in the network.
+A re-tuning of the matching circuit is therefore required to restore the
+resonance at the target frequency.
 
-A new tuning step is therefore required to bring the dip back to
-\SI{2.2}{\giga\hertz}, by adjusting the capacitance, inductance, and
-line length values.
-After tuning, the optimal values obtained are:
-%
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/result_1d_S11_decale.png}
+    \caption{$S_{11}$ of the lumped matching circuit with microstrip
+             lines, before re-tuning.}
+    \label{fig:result_1d_S11_decale}
+\end{figure}
+
+After re-tuning microstip lengths (L), capacitors (Cap) and inductors (Ind) values, we obtained these values and results : 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/result_1d_S11_param_lcl.png}
+    \caption{$S_{11}$ of the lumped matching circuit with microstrip
+            lines, after re-tuning \& parameters values.}
+    \label{fig:result_1d_S11_param_lcl}
+\end{figure}
+
+By tuning our different parameters, we found right values : 
 \begin{equation}
-    L_\mathrm{line} = \SI{8.025}{\milli\meter}, \quad
-    C = \SI{23.552}{\pico\farad}, \quad
+    L = \SI{8.025}{\milli\meter}, \quad
+    C = \SI{23.553}{\pico\farad}, \quad
     L_\mathrm{ind} = \SI{9.38}{\nano\henry}.
-    \label{eq:retuning_mlin}
 \end{equation}
 
-\subsubsection{Simplification to a 1C--1L Topology}
+With those, we obtain a $S_{11}$ way below $-10$\,dB at our frequency of $2.2\,\mathrm{GHz}$ which is following specifications. 
 
-To simplify the schematic and reduce the number of components on the PCB,
-the matching network is reduced to a single shunt capacitor and a single
-series inductor.
-A parameter sweep is performed in ADS over the three variables
-($L_\mathrm{line}$, $C$ and $L_\mathrm{ind}$) to find the values that
-center the $S_{11}$ dip at \SI{2.2}{\giga\hertz}.
-The optimal values obtained from this sweep are:
+% ------------------------------------------------------------
+\subsection{Simplified 1C-1L topology with re-tuning}
+\label{subsec:simplified_1c1l}
+% ------------------------------------------------------------
+
+To reduce design complexity and component count, the two-stage LC circuit is
+simplified to a single capacitor and a single inductor. Here is the new schematic : 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{images/schema_1d_lc_ms_simple.png}
+    \caption{ADS simulation of the one-diode series rectifier, lumped-circuit and microstrip lines matching circuit simplified.}
+    \label{fig:schema_1d_lc_ms_simple}
+\end{figure}
+
+A parameter sweep in ADS over the line length $L$, the capacitance
+$\mathrm{Cap}$, and the inductance $\mathrm{Ind}$ determined the following values:
 %
 \begin{equation}
-    L_\mathrm{line} = \SI{4.19}{\milli\meter}, \quad
+    L = \SI{4.19}{\milli\meter}, \quad
     C = \SI{39}{\pico\farad}, \quad
     L_\mathrm{ind} = \SI{2.7}{\nano\henry}.
     \label{eq:opt_1c1l}
 \end{equation}
-
-\begin{figure}[htbp]
+%
+With these values, the $S_{11}$ at \SI{2.2}{\giga\hertz} achieves:
+%
+\begin{align}
+    S_{11} &= \SI{-31.37}{\deci\bel}
+        \quad (\text{marker m1}), \\
+    S_{11}&= \SI{-15.41}{\deci\bel}
+        \quad (\text{marker m2}).
+\end{align}
+%
+The results are shown in Figure~\ref{fig:s11_1c1l_retuned} :
+\begin{figure}[H]
     \centering
-    % \includegraphics[width=0.75\linewidth]{figures/s11_1c1l_mlin.png}
-    \caption{$S_{11}$ of the simplified 1C--1L topology with
-             \texttt{MLIN}/\texttt{MTEE} blocks, after parameter sweep.
-             $L_\mathrm{line} = \SI{4.19}{\milli\meter}$,
-             $C = \SI{39}{\pico\farad}$,
-             $L_\mathrm{ind} = \SI{2.7}{\nano\henry}$.}
-    \label{fig:s11_1c1l_mlin}
+    \includegraphics[width=\linewidth]{images/s11_1c1l_retuned.png}
+    \caption{$S_{11}$ of the simplified 1C--1L matching circuit with
+             microstrip segments, after parameter sweep re-tuning.}
+    \label{fig:s11_1c1l_retuned}
 \end{figure}
 
+The specification $S_{11} < \SI{-10}{\deci\bel}$ is satisfied at \SI{2.2}{\giga\hertz},
+confirming that the simplified topology is well adapted after re-tuning.
+
 % ------------------------------------------------------------
-\subsection{Step 2 --- Replacing the Capacitor and Inductor
-            with Microstrip Lines}
+\subsection{Fully distributed microstrip implementation}
 \label{subsec:full_ms}
 % ------------------------------------------------------------
 
-\subsubsection{Principle}
+For the final step, the lumped capacitor and inductor are replaced by
+microstrip lines acting as inductor and capacitor elements.
+This topology eliminates the dependency on lumped SMD components.
 
-In this second step, the approach is taken further: the lumped capacitor
-and inductor are entirely removed and each replaced by an \texttt{MLIN}
-block whose width~$W$ and length~$L$ are adjusted.
-
-The key idea is that a narrow microstrip line behaves as a distributed
-inductor, while a wide microstrip line behaves as a distributed capacitor.
-By tuning these two geometric parameters, it is therefore possible to
-reproduce the effect of the lumped capacitor and inductor without needing
-any additional SMD components.
-
-This approach is advantageous for PCB manufacturing, as it reduces the
-number of components to be soldered and eliminates performance variations
-caused by component tolerances.
-
-\subsubsection{Design Rules}
-
-The constraints imposed for this step are as follows:
-%
-\begin{itemize}
-    \item Only the width~$W$ and length~$L$ of the two \texttt{MLIN} blocks
-          replacing the capacitor and inductor may be adjusted;
-    \item $W < \SI{4}{\milli\meter}$ for each of the two lines;
-    \item $L < \SI{20}{\milli\meter}$ for each of the two lines.
-\end{itemize}
-
-\subsubsection{Results after Tuning}
-
-Tuning in ADS over the four geometric parameters
-($W_C$, $L_C$, $W_L$, $L_L$) yields an impedance match centered at
-\SI{2.2}{\giga\hertz}.
-The optimal values are summarized in Table~\ref{tab:ms_final_dims}.
-
-\begin{table}[htbp]
+Here is the global schematic of this implementation : 
+\begin{figure}[H]
     \centering
-    \caption{Optimized dimensions of the two microstrip lines replacing
-             the capacitor and inductor (one-diode topology,
-             \SI{2.2}{\giga\hertz}).}
-    \label{tab:ms_final_dims}
-    \begin{tabular}{llS[table-format=1.2]l}
+    \includegraphics[width=\linewidth]{images/schema_1d_onlymc.png}
+    \caption{ADS simulation of the one-diode series rectifier with only microstrip lines matching circuit.}
+    \label{fig:schema_1d_onlymc}
+\end{figure}
+
+For this new implementation, new tuning have been also done for sure. Here is the result and correct parameters values : 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{images/result_1d_onlymc.png}
+    \caption{$S_{11}$ of the only microstrip lines matching circuit, after parameter sweep re-tuning.}
+    \label{fig:result_1d_onlymc}
+\end{figure}
+
+The full set of tuning parameters and their optimal values after the ADS
+Tune optimization are listed in Table~\ref{tab:microstrip_only_tune}.
+
+\begin{table}[H]
+    \centering
+    \caption{Optimized parameter values for the full microstrip
+             matching circuit (one-diode topology, \SI{2.2}{\giga\hertz}).}
+    \label{tab:microstrip_only_tune}
+    \begin{tabular}{lll}
         \toprule
-        Replaced component & Parameter
-            & {Optimized value} & Unit \\
+        Parameter & Physical meaning & Optimized value \\
         \midrule
-        Capacitor  & Width  $W_C$ & 0.56 & mm \\
-                   & Length $L_C$ & 1.8  & mm \\
-        \midrule
-        Inductor   & Width  $W_L$ & 1.32 & mm \\
-                   & Length $L_L$ & 7.6  & mm \\
+        $W_C$ & Width of capacitive stub      & \SI{0.56}{\milli\meter} \\
+        $L_C$ & Length of capacitive stub     & \SI{1.8}{\milli\meter} \\
+        $L_L$ & Length of inductive stub      & \SI{7.6}{\milli\meter} \\
+        $W_L$ & Width of inductive stub       & \SI{1.32}{\milli\meter} \\
+        $L$   & Main line segment length      & \SI{4.12}{\milli\meter} \\
+        Cap   & Residual lumped capacitance   & \SI{39}{\pico\farad} \\
+        Ind   & Residual lumped inductance    & \SI{2.7}{\nano\henry} \\
         \bottomrule
     \end{tabular}
 \end{table}
 
-It can be noted that the line replacing the capacitor
-($W_C = \SI{0.56}{\milli\meter}$) is narrower than the line replacing the
-inductor ($W_L = \SI{1.32}{\milli\meter}$).
-This is consistent with the expected behavior: a narrow line has a high
-characteristic impedance (inductive behavior), while a wide line has a low
-characteristic impedance (capacitive behavior).
-The lengths allow fine-tuning of the equivalent reactance at the target
-frequency.
-
-\begin{figure}[htbp]
-    \centering
-    % \includegraphics[width=0.75\linewidth]{figures/s11_ms_final.png}
-    \caption{$S_{11}$ of the circuit with both lumped components replaced
-             by \texttt{MLIN} blocks.
-             $W_C = \SI{0.56}{\milli\meter}$, $L_C = \SI{1.8}{\milli\meter}$,
-             $W_L = \SI{1.32}{\milli\meter}$, $L_L = \SI{7.6}{\milli\meter}$.}
-    \label{fig:s11_ms_final}
-\end{figure}
-
+With this fully distributed configuration, the $S_{11}$ reaches
+\textbf{\SI{-40.84}{\deci\bel}} at \SI{2.2}{\giga\hertz}
+(Figure~\ref{fig:result_1d_onlymc}), representing the best matching
+performance achieved in this study.
+The very deep and narrow resonance maximizes power transfer at our frequency at the cost of a
+reduced matching bandwidth.
 % ------------------------------------------------------------
-\subsection{Comparison of \texorpdfstring{$S_{11}$}{S11}:
-            Lumped LC Circuit vs.\ Microstrip Circuit}
-\label{subsec:s11_comparison_t32}
+\subsection{Rectifier Performance and Topology Comparison}
+\label{subsec:performance_comparison}
 % ------------------------------------------------------------
 
-Figure~\ref{fig:s11_comparison_t32} overlays the $S_{11}$ curves for the
-two configurations:
+In this final stage, the full behavior of the one-diode topology is evaluated. We compare the ideal lumped LC matching circuit (designed in Task~3.1) with the physical microstrip circuit (designed in Task~3.2) across two main criteria: impedance matching ($S_{11}$) and RF-to-DC power conversion efficiency ($\eta$).
+
+\subsubsection{Impedance Matching ($S_{11}$) Comparison}
+
+Figure~\ref{fig:s11_comparison_t32} overlays the $S_{11}$ curves for the two configurations:
 %
 \begin{itemize}
-    \item \textbf{Lumped LC circuit} (Task~3.1, step~4): ideal SMD
-          components, without modeling of the PCB traces;
-    \item \textbf{Microstrip circuit} (Task~3.2, step~2): capacitor and
-          inductor replaced by physical \texttt{MLIN} blocks.
+    \item \textbf{Lumped LC circuit}: ideal SMD components, without modeling of the PCB traces;
+    \item \textbf{Microstrip circuit}: capacitor and inductor replaced by physical \texttt{MLIN} blocks.
 \end{itemize}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     % \includegraphics[width=0.75\linewidth]{figures/s11_comparison_t32.png}
-    \caption{Comparison of $S_{11}$ between the lumped LC matching circuit
-             (Task~3.1) and the microstrip circuit (Task~3.2).
-             $R_L = \SI{10}{\kilo\ohm}$, $P_\mathrm{in} = -20$\,dBm.}
+    \caption{Comparison of $S_{11}$ between the lumped LC matching circuit (Task~3.1) and the microstrip circuit (Task~3.2). $R_L = \SI{10}{\kilo\ohm}$, $P_\mathrm{in} = -20$\,dBm.}
     \label{fig:s11_comparison_t32}
 \end{figure}
 
-\paragraph{Analysis.}
-Both circuits achieve satisfactory impedance matching at
-\SI{2.2}{\giga\hertz} ($S_{11} < \SI{-15}{\deci\bel}$), but their
-behaviors differ slightly.
-The microstrip topology achieves a deeper $S_{11}$ dip, since the line
-dimensions allow continuous tuning of the reactance, unlike the discrete
-values of SMD components.
-On the other hand, the matching bandwidth tends to be narrower, making
-the circuit more sensitive to frequency drift.
-For an RF energy harvesting application targeting the ISM band at
-\SI{2.2}{\giga\hertz}, this narrower bandwidth is acceptable, since the
-RF source (Wi-Fi, cellular network) is a nearly single-frequency carrier.
+\paragraph{Analysis}
+Both circuits achieve satisfactory impedance matching at \SI{2.2}{\giga\hertz} ($S_{11} < \SI{-15}{\deci\bel}$), but their behaviors differ slightly. The microstrip topology achieves a deeper $S_{11}$ dip, since the line dimensions allow continuous tuning of the reactance, unlike the discrete values of SMD components. On the other hand, the matching bandwidth tends to be narrower, making the circuit more sensitive to frequency drift. For an RF energy harvesting application targeting the ISM band at \SI{2.2}{\giga\hertz}, this narrower bandwidth is acceptable, since the RF source (Wi-Fi, cellular network) is a nearly single-frequency carrier.
+
+\subsubsection{Power Conversion Efficiency ($\eta$) and DC Output}
+
+The RF-to-DC power conversion efficiency is defined as:
+%
+\begin{equation}
+    \eta = \frac{P_\mathrm{DC}}{P_\mathrm{RF}}
+         = \frac{V_\mathrm{out} \cdot I_\mathrm{out}}{V_\mathrm{in} \cdot I_\mathrm{in}}
+         \times 100\,\%.
+    \label{eq:pce}
+\end{equation}
+
+\subsubsection*{Note on figures}
+The curves for $\eta$, $V_\mathrm{out}$ and $I_\mathrm{out}$ as a function of (a)~$R_L$ and (b)~$P_\mathrm{in}$, comparing both the lumped and microstrip configurations, are to be inserted here as Figures~\ref{fig:perf_vs_rl} and~\ref{fig:perf_vs_pin} once the ADS transient or harmonic-balance simulations are completed.
+
+\begin{figure}[htbp]
+    \centering
+    % \includegraphics[width=\linewidth]{figures/perf_vs_rl.png}
+    \caption{Rectifier performance ($\eta$, $V_\mathrm{out}$, $I_\mathrm{out}$) as a function of load resistance $R_L$ (\SIrange{1}{10}{\kilo\ohm}), with and without microstrip lines. $P_\mathrm{in} = -20$\,dBm, $f = 2.2$\,GHz.}
+    \label{fig:perf_vs_rl}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    % \includegraphics[width=\linewidth]{figures/perf_vs_pin.png}
+    \caption{Rectifier performance ($\eta$, $V_\mathrm{out}$, $I_\mathrm{out}$) as a function of input power $P_\mathrm{in}$ (-20 to 10\,\text{dBm}), with and without microstrip lines. $R_L = 10$\,k$\Omega$, $f = 2.2$\,GHz.}
+    \label{fig:perf_vs_pin}
+\end{figure}
+
+\subsubsection{Adequacy for powering the STTS22H sensor}
+
+The STTS22H temperature sensor requires a supply voltage between \SI{1.5}{\volt} and \SI{3.6}{\volt} and a supply current below \SI{120}{\micro\ampere}. At an input power of $P_\mathrm{in} = +10\,\text{dBm}$ (the maximum considered in this study), the one-diode rectifier must provide at least:
+%
+\begin{equation}
+    P_\mathrm{DC,min}
+    = V_\mathrm{DD,min} \times I_\mathrm{DD,max}
+    = 1.5 \times 120 \times 10^{-6}
+    = \SI{180}{\micro\watt}.
+\end{equation}
+%
+Whether this threshold is met depends on the PCE achieved at $+10\,\text{dBm}$, which will be quantified from the simulation curves of Figure~\ref{fig:perf_vs_pin}. The answer to this question will be provided upon completion of the transient simulation.
