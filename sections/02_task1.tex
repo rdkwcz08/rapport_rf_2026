@@ -42,3 +42,44 @@ We use a method included in the Keysight’s software. This is a tool to tune dy
 inductance and the capacitor of the filter. The goal is to find a “dip” in the chart at the expected frequency. 
 this “dip” is the optimal resonance of the system. Regarding the specifications, we want to obtain a $S_{11}$ 
 parameter (reflexion coeficient) lower than -10 db at the wanted frequency.
+
+For example, here are two different schematics. First, the input impedance of our system is 50 $\Omega$ to 
+modelize an antenna perfectly designed. But at the output, our impedance is $10-110j$. That mean that we 
+should use a 10 $\Omega$ resistor in series with a 0.603 $pF$ capacitor ($C=\frac{1}{2\pi f \times X}$ with $f=2.4GHz$ and $X=-110$). 
+When we have the circuit, we need to tune the LC filter to match all the circuit to 50 $\Omega$. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{images/task1_expectedresults.png}
+    \caption{ADS schematic of a matching circuit for a 50 Ohms input impedence.}
+    \label{fig:schematic_matching_circuit_50_ohms}
+\end{figure}
+
+As a reminder tunning is to change dynamicaly the value of the LC filter to get the better resonance at the wanted frequency. 
+Here, with this value of the LC filter ($L=8.617nH$ and $C=2.773pF$) we obtain a great dip at 2.4 GHz with $S_{11}=-27 dB$. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{images/task1_expectedresults_plot.png}
+    \caption{ADS chart of a matching circuit for a $42-11.4j$ Ohms input impedence.}
+    \label{fig:chart_matching_circuit_42-11.4j}
+\end{figure}
+
+This work can be done with another input impedance. For example, we had an exercice with an input impedance $Zin = 42-11.4j$ 
+and an output impedande $Zdiode = 12-100j$ with the target frequency equals to $2.6 GHz$. This is exactly the same step than 
+before : replace the output impedance by a resistor and a capacitor, tune the LC filter and otain the perfect resonance to 
+match the circuit and create a 50 $\Omega$ circuit. Here are the circuit and the chart of this exercise.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{images/task1_exercise.png}
+    \caption{ADS schematic of matching circuit for a $42-11.4j$ Ohms input impedence.}
+    \label{fig:schematic_matching_circuit_42-11.4j}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{images/task1_exercise_plot.png}
+    \caption{ADS chart of a matching circuit for a $42-11.4j$ Ohms input impedence.}
+    \label{fig:chart_matching_circuit_42-11.4j}
+\end{figure}
