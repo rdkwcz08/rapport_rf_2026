@@ -7,12 +7,12 @@
 \label{sec:task3_2}
 
 This section repeats steps~(4) and~(5) from Task~3.1, progressively
-replacing the lumped components of the matching network with microstrip
+replacing the components of the matching network with microstrip
 lines.
 The goal is to move closer to a circuit that can realistically be
 implemented on a PCB, where the physical traces play an active role in
 impedance matching, and to compare the results with those obtained using
-the purely lumped circuit.
+only LC circuit.
 
 % ------------------------------------------------------------
 \subsection{Substrate and design rules}
@@ -51,19 +51,19 @@ $Z_0 = \SI{50}{\ohm}$. Here is the global schematic :
 \label{subsec:mlin_parasitics}
 % ------------------------------------------------------------
 
-When the MLIN segments are introduced into the simulation while keeping
+When the microstrip lines are introduced into the simulation while keeping
 the original lumped component values unchanged, the $S_{11}$ resonance shifts from
 \SI{2.2}{\giga\hertz} to approximately \SI{1.8}{\giga\hertz}
 (Figure~\ref{fig:schema_1d_lc_ms}).
 The degradation is caused by the additional inductance and capacitance
-contributed by the microstrip lines, which effectively increase the total
+created by the microstrip lines, which effectively increase the total
 reactive energy stored in the network.
 A re-tuning of the matching circuit is therefore required to restore the
 resonance at the target frequency.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\linewidth]{images/result_1d_S11_decale.png}
+    \includegraphics[width=\linewidth]{images/result_1d_S11_decale.png}
     \caption{$S_{11}$ of the lumped matching circuit with microstrip
              lines, before re-tuning.}
     \label{fig:result_1d_S11_decale}
@@ -139,9 +139,9 @@ confirming that the simplified topology is well adapted after re-tuning.
 \label{subsec:full_ms}
 % ------------------------------------------------------------
 
-For the final step, the lumped capacitor and inductor are replaced by
+For the final step, the capacitor and inductor are replaced by
 microstrip lines acting as inductor and capacitor elements.
-This topology eliminates the dependency on lumped SMD components.
+This topology eliminates the dependency on SMD components.
 
 Here is the global schematic of this implementation : 
 \begin{figure}[H]
@@ -172,9 +172,9 @@ Tune optimization are listed in Table~\ref{tab:microstrip_only_tune}.
         \toprule
         Parameter & Physical meaning & Optimized value \\
         \midrule
-        $W_C$ & Width of capacitive stub      & \SI{0.56}{\milli\meter} \\
-        $L_C$ & Length of capacitive stub     & \SI{1.8}{\milli\meter} \\
-        $L_L$ & Length of inductive stub      & \SI{7.6}{\milli\meter} \\
+        $W_C$ & Width of capacitive stub      & \SI{0.96}{\milli\meter} \\
+        $L_C$ & Length of capacitive stub     & \SI{0.3}{\milli\meter} \\
+        $L_L$ & Length of inductive stub      & \SI{13.9}{\milli\meter} \\
         $W_L$ & Width of inductive stub       & \SI{1.32}{\milli\meter} \\
         $L$   & Main line segment length      & \SI{4.12}{\milli\meter} \\
         Cap   & Residual lumped capacitance   & \SI{39}{\pico\farad} \\
@@ -184,11 +184,12 @@ Tune optimization are listed in Table~\ref{tab:microstrip_only_tune}.
 \end{table}
 
 With this fully distributed configuration, the $S_{11}$ reaches
-\textbf{\SI{-40.84}{\deci\bel}} at \SI{2.2}{\giga\hertz}
+\textbf{\SI{-25.66}{\deci\bel}} at \SI{2.2}{\giga\hertz}
 (Figure~\ref{fig:result_1d_onlymc}), representing the best matching
 performance achieved in this study.
 The very deep and narrow resonance maximizes power transfer at our frequency at the cost of a
 reduced matching bandwidth.
+
 % ------------------------------------------------------------
 \subsection{Rectifier Performance and Topology Comparison}
 \label{subsec:performance_comparison}
@@ -207,17 +208,16 @@ Figure~\ref{fig:s11_comparison_t32} overlays the $S_{11}$ curves for the two con
 
 \begin{figure}[H]
     \centering
-    % \includegraphics[width=0.75\linewidth]{figures/s11_comparison_t32.png}
-    \caption{Comparison of $S_{11}$ between the lumped LC matching circuit (Task~3.1) and the microstrip circuit (Task~3.2). $R_L = \SI{10}{\kilo\ohm}$, $P_\mathrm{in} = -20$\,dBm.}
+    \includegraphics[width=0.75\linewidth]{images/s11_comparison_t32.png}
+    \caption{Comparison of $S_{11}$ between the lumped LC matching circuit (Task~3.1) and the microstrip circuit (Task~3.2). $R_L = \SI{20}{\kilo\ohm}$, $P_\mathrm{in} = -20$\,dBm.}
     \label{fig:s11_comparison_t32}
 \end{figure}
 
-\paragraph{Analysis}
-Both circuits achieve satisfactory impedance matching at \SI{2.2}{\giga\hertz} ($S_{11} < \SI{-15}{\deci\bel}$), but their behaviors differ slightly. The microstrip topology achieves a deeper $S_{11}$ dip, since the line dimensions allow continuous tuning of the reactance, unlike the discrete values of SMD components. On the other hand, the matching bandwidth tends to be narrower, making the circuit more sensitive to frequency drift. For an RF energy harvesting application targeting the ISM band at \SI{2.2}{\giga\hertz}, this narrower bandwidth is acceptable, since the RF source (Wi-Fi, cellular network) is a nearly single-frequency carrier.
+\paragraph{Impedance Matching Analysis}
+Both circuits achieve to reach the right impedance matching at \SI{2.2}{\giga\hertz} ($S_{11} < \SI{-15}{\deci\bel}$), but their behaviors are quite different. The microstrip topology achieves a deeper $S_{11}$ dip, since the line dimensions allow continuous tuning, unlike the discrete values of L\&C components.
+\subsubsection{Power Conversion Efficiency (\texorpdfstring{$\eta$}{eta}) and DC Output}
 
-\subsubsection{Power Conversion Efficiency ($\eta$) and DC Output}
-
-The RF-to-DC power conversion efficiency is defined as:
+The RF-to-DC power conversion efficiency (PCE) is defined as the ratio of the rectified DC power delivered to the load over the incident RF power:
 %
 \begin{equation}
     \eta = \frac{P_\mathrm{DC}}{P_\mathrm{RF}}
@@ -226,32 +226,55 @@ The RF-to-DC power conversion efficiency is defined as:
     \label{eq:pce}
 \end{equation}
 
-\subsubsection*{Note on figures}
-The curves for $\eta$, $V_\mathrm{out}$ and $I_\mathrm{out}$ as a function of (a)~$R_L$ and (b)~$P_\mathrm{in}$, comparing both the lumped and microstrip configurations, are to be inserted here as Figures~\ref{fig:perf_vs_rl} and~\ref{fig:perf_vs_pin} once the ADS transient or harmonic-balance simulations are completed.
+To accurately evaluate the performance of our system, a Large-Signal Harmonic Balance (HB) simulation was performed. The load resistance was adjusted to $R_L = \SI{20}{\kilo\ohm}$ to precisely model the equivalent input resistance of the chosen STTS22H sensor.
 
-\begin{figure}[htbp]
+\paragraph{Performance of the Lumped LC Matching Circuit}
+First, we simulated the topology using ideal SMD components for the matching network. Figure~\ref{fig:perf_lc_6graphs} presents the full set of results (Efficiency and Output Voltage as functions of both Input Power and Load Resistance).
+
+\begin{figure}[H]
     \centering
-    % \includegraphics[width=\linewidth]{figures/perf_vs_rl.png}
-    \caption{Rectifier performance ($\eta$, $V_\mathrm{out}$, $I_\mathrm{out}$) as a function of load resistance $R_L$ (\SIrange{1}{10}{\kilo\ohm}), with and without microstrip lines. $P_\mathrm{in} = -20$\,dBm, $f = 2.2$\,GHz.}
-    \label{fig:perf_vs_rl}
+    %\includegraphics[width=\linewidth]{images/perf_lc.png} % <-- Mets ici ta capture des 6 graphiques de la page 32
+    \caption{Performance dashboard (Efficiency $\eta$ and $V_\mathrm{out}$) for the 1-Diode topology with Lumped LC matching ($f = \SI{2.2}{\giga\hertz}$, $R_L = \SI{20}{\kilo\ohm}$).}
+    \label{fig:perf_lc_6graphs}
 \end{figure}
 
-\begin{figure}[htbp]
+At our maximum targeted input power ($P_\mathrm{in} = \SI{10}{\dBm}$), the efficiency reaches approximately \textbf{6.69\%}.
+
+\paragraph{ Performance of the Full Microstrip Circuit}
+Next, we evaluated the final physical implementation where the matching network relies solely on microstrip lines. The results are shown in Figure~\ref{fig:perf_ms_6graphs}.
+
+\begin{figure}[H]
     \centering
-    % \includegraphics[width=\linewidth]{figures/perf_vs_pin.png}
-    \caption{Rectifier performance ($\eta$, $V_\mathrm{out}$, $I_\mathrm{out}$) as a function of input power $P_\mathrm{in}$ (-20 to 10\,\text{dBm}), with and without microstrip lines. $R_L = 10$\,k$\Omega$, $f = 2.2$\,GHz.}
-    \label{fig:perf_vs_pin}
+    %\includegraphics[width=\linewidth]{images/perf_ms.png} % <-- Mets ici ta capture des 6 graphiques de la page 33
+    \caption{Performance dashboard (Efficiency $\eta$ and $V_\mathrm{out}$) for the 1-Diode topology with fully distributed Microstrip matching ($f = \SI{2.2}{\giga\hertz}$, $R_L = \SI{20}{\kilo\ohm}$).}
+    \label{fig:perf_ms_6graphs}
 \end{figure}
+
+With the microstrip matching network, the efficiency at $P_\mathrm{in} = \SI{10}{\dBm}$ improves drastically, reaching \textbf{17.15\%}. 
+
+\paragraph{Efficiency Analysis}
+This significant improvement (from 6.69\% to 17.15\%) can be explained by the physical nature of the matching networks. Ideal lumped inductors and capacitors have inherent parasitic series resistances ($R_s$) that dissipate RF energy as heat. By replacing them with fully distributed microstrip lines on a high-quality RF substrate (Rogers 4350B), we reduce these insertion losses, leading to a higher quality factor (Q) and better energy transfer to the diode.
 
 \subsubsection{Adequacy for powering the STTS22H sensor}
 
-The STTS22H temperature sensor requires a supply voltage between \SI{1.5}{\volt} and \SI{3.6}{\volt} and a supply current below \SI{120}{\micro\ampere}. At an input power of $P_\mathrm{in} = +10\,\text{dBm}$ (the maximum considered in this study), the one-diode rectifier must provide at least:
+The ultimate goal of this rectifier is to power an STTS22H temperature sensor. According to its datasheet, the sensor requires a supply voltage between \SI{1.5}{\volt} and \SI{3.6}{\volt}, and consumes a maximum active current of \SI{120}{\micro\ampere}. 
+
+The absolute minimum DC power required is:
 %
 \begin{equation}
     P_\mathrm{DC,min}
     = V_\mathrm{DD,min} \times I_\mathrm{DD,max}
-    = 1.5 \times 120 \times 10^{-6}
+    = \SI{1.5}{\volt} \times \SI{120}{\micro\ampere}
     = \SI{180}{\micro\watt}.
 \end{equation}
-%
-Whether this threshold is met depends on the PCE achieved at $+10\,\text{dBm}$, which will be quantified from the simulation curves of Figure~\ref{fig:perf_vs_pin}. The answer to this question will be provided upon completion of the transient simulation.
+
+Using our final microstrip implementation at an input power of $P_\mathrm{in} = \SI{10}{\dBm}$ (which equals \SI{10}{\milli\watt}), the measured efficiency is $\eta = 17.15\%$. 
+The delivered DC power is therefore:
+\begin{equation}
+    P_\mathrm{DC,delivered} = \SI{10}{\milli\watt} \times 0.1715 = \SI{1.715}{\milli\watt} = \SI{1715}{\micro\watt}.
+\end{equation}
+
+\paragraph{Conclusion}
+The delivered power (\SI{1715}{\micro\watt}) is nearly ten times higher than the strict minimum required (\SI{180}{\micro\watt}). Furthermore, the Harmonic Balance simulation (Figure~\ref{fig:perf_ms_6graphs}) shows that at $P_\mathrm{in} = \SI{10}{\dBm}$, the output voltage $V_\mathrm{out}$ reaches approximately \SI{2.5}{\volt} to \SI{3.0}{\volt}, which sits perfectly within the sensor's safe operating range (\SIrange{1.5}{3.6}{\volt}). 
+
+We can confidently conclude that the one-diode microstrip topology is fully capable of powering the STTS22H sensor under these RF conditions.
