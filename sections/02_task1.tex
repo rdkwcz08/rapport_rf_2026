@@ -34,8 +34,7 @@ We used this equation de determine this value
 
 \subsection{Expected results}
 
-When the diode was modelized by its equivalent RC circuit, we added a LC filter between the source (50 $\Omega$) 
-and the charge (Schottky diode). This filter’s objective is to compensate the imaginary part of the diode and 
+When the diode was modeled by its equivalent RC circuit, we added an LC matching network between the RF source and the load (Schottky diode). The source impedance is set to the RF standard of $50\,\Omega$, a value historically chosen as the optimal compromise between maximum power handling capability (best around $30\,\Omega$) and minimum signal attenuation (best around $75\,\Omega$).This filter’s objective is to compensate the imaginary part of the diode and 
 keep a 5O $\Omega$ impedance at the expected frequency.
 
 We use a method included in the Keysight’s software. This is a tool to tune dynamicaly the value of the 
@@ -81,5 +80,5 @@ match the circuit and create a 50 $\Omega$ circuit. Here are the circuit and the
     \centering
     \includegraphics[width=\linewidth]{images/task1_exercise_plot.png}
     \caption{ADS chart of a matching circuit for a $42-11.4j$ Ohms input impedence.}
-    \label{fig:chart_matching_circuit_42-11.4j}
+    \label{fig:chart_matching_circuit_42-11.4j_bis}
 \end{figure}

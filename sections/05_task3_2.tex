@@ -195,86 +195,214 @@ reduced matching bandwidth.
 \label{subsec:performance_comparison}
 % ------------------------------------------------------------
 
-In this final stage, the full behavior of the one-diode topology is evaluated. We compare the ideal lumped LC matching circuit (designed in Task~3.1) with the physical microstrip circuit (designed in Task~3.2) across two main criteria: impedance matching ($S_{11}$) and RF-to-DC power conversion efficiency ($\eta$).
+Now, we evaluate the full performance of the one-diode series rectifier
+topology under two matching configurations: the LC matching
+circuit (Task~3.1) and the pure microstrip circuit (Task~3.2).
 
-\subsubsection{Impedance Matching ($S_{11}$) Comparison}
 
-Figure~\ref{fig:s11_comparison_t32} overlays the $S_{11}$ curves for the two configurations:
-%
+\paragraph{LC Matching Circuit}
+
+Here is the schematic of the LC matching circuit:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{images/sch_1d_lc_ms.png}
+    \caption{Harmonic Balance simulation schematic for the 1-Diode
+             topology with LC matching
+             ($f = \SI{2.2}{\giga\hertz}$, $R_L = \SI{10}{\kilo\ohm}$).}
+    \label{fig:sch_1d_lc_ms}
+\end{figure}
+
+This topology combines lumped SMD components with physical microstrip
+line segments, offering a balance between design flexibility and
+physical realizability. The lumped elements allow precise impedance
+control while the microstrip lines model the physical routing
+constraints of the PCB.
+
+And the performance results dashboard:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{images/res_1d_lc_ms.png}
+    \caption{Performance dashboard (Efficiency $\eta$, $V_\mathrm{out}$
+             and $I_\mathrm{out}$) for the 1-Diode topology with hybrid
+             LC + microstrip matching
+             ($f = \SI{2.2}{\giga\hertz}$, $R_L = \SI{10}{\kilo\ohm}$).}
+    \label{fig:res_1d_lc_ms}
+\end{figure}
+
+The hybrid LC + microstrip matching circuit achieves an efficiency of
+\textbf{6.66\%} at $P_\mathrm{in} = \SI{10}{\text{dBm}}$ (Marker m2),
+with an output voltage of approximately \textbf{\SI{3.2}{\volt}} at
+the same power level.
+
+Analysis of the six graphs of the LC circuit dashboard:
 \begin{itemize}
-    \item \textbf{Lumped LC circuit}: ideal SMD components, without modeling of the PCB traces;
-    \item \textbf{Microstrip circuit}: capacitor and inductor replaced by physical \texttt{MLIN} blocks.
+    \item \textbf{Efficiency vs.\ $P_\mathrm{in}$:}
+    The efficiency peaks at \textbf{6.66\%} at our target
+    $P_\mathrm{in} = \SI{10}{\text{dBm}}$ (Marker m2).
+    This relatively low value efficiency
+    reflects the fundamental limitation of the half-wave rectifier:
+    only one half-cycle of the RF signal is rectified, and the
+    asymmetric $S_{11}$ response limits the possible matching
+    bandwidth.
+
+    \item \textbf{Efficiency vs.\ $R_L$:}
+    Evaluated at a constant low input power, the efficiency increases
+     with $R_L$, rising from near zero at low resistance
+    values to approximately \textbf{0.014\%} at
+    $R_L = \SI{31}{\kilo\ohm}$. This confirms that the one-diode
+    hybrid topology has a high load impedance at low power.
+
+    \item \textbf{$V_\mathrm{out}$ vs.\ $P_\mathrm{in}$:}
+    The output voltage shows a steep rise as the diode
+    reaches its forward voltage drop, reaching approximately
+    \textbf{\SI{3.2}{\volt}} at $P_\mathrm{in} = \SI{10}{\text{dBm}}$.
+
+    \item \textbf{$I_\mathrm{out}$ vs.\ $P_\mathrm{in}$:}
+    Following Ohm's law ($I = V/R$), the output current mirrors the
+    voltage curve, delivering approximately
+    \textbf{\SI{0.17}{\milli\ampere}} into the \SI{10}{\kilo\ohm} load
+    at $P_\mathrm{in} = \SI{10}{\text{dBm}}$.
+
+    \item \textbf{$V_\mathrm{out}$ and $I_\mathrm{out}$ vs.\ $R_L$:}
+    When swept at a constant low input power
+    ($P_\mathrm{in} = -\SI{20}{\text{dBm}}$), as the load resistance
+    increases, the output voltage rises monotonically towards
+    approximately \textbf{\SI{7}{\milli\volt}}, while the delivered
+    current reaches a max of approximately \SI{240}{\nano\ampere}
+    before slowly declining at very high $R_L$ values.
 \end{itemize}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.75\linewidth]{images/s11_comparison_t32.png}
-    \caption{Comparison of $S_{11}$ between the lumped LC matching circuit (Task~3.1) and the microstrip circuit (Task~3.2). $R_L = \SI{20}{\kilo\ohm}$, $P_\mathrm{in} = -20$\,dBm.}
-    \label{fig:s11_comparison_t32}
-\end{figure}
+% --- Pure Microstrip ---
+\paragraph{Pure Microstrip Matching Circuit}
 
-\paragraph{Impedance Matching Analysis}
-Both circuits achieve to reach the right impedance matching at \SI{2.2}{\giga\hertz} ($S_{11} < \SI{-15}{\deci\bel}$), but their behaviors are quite different. The microstrip topology achieves a deeper $S_{11}$ dip, since the line dimensions allow continuous tuning, unlike the discrete values of L\&C components.
-\subsubsection{Power Conversion Efficiency (\texorpdfstring{$\eta$}{eta}) and DC Output}
-
-The RF-to-DC power conversion efficiency (PCE) is defined as the ratio of the rectified DC power delivered to the load over the incident RF power:
-%
-\begin{equation}
-    \eta = \frac{P_\mathrm{DC}}{P_\mathrm{RF}}
-         = \frac{V_\mathrm{out} \cdot I_\mathrm{out}}{V_\mathrm{in} \cdot I_\mathrm{in}}
-         \times 100\,\%.
-    \label{eq:pce}
-\end{equation}
-
-To accurately evaluate the performance of our system, a Large-Signal Harmonic Balance (HB) simulation was performed. The load resistance was adjusted to $R_L = \SI{20}{\kilo\ohm}$ to precisely model the equivalent input resistance of the chosen STTS22H sensor.
-
-\paragraph{Performance of the Lumped LC Matching Circuit}
-First, we simulated the topology using ideal SMD components for the matching network. Figure~\ref{fig:perf_lc_6graphs} presents the full set of results (Efficiency and Output Voltage as functions of both Input Power and Load Resistance).
+Here is the schematic of the pure microstrip matching circuit:
 
 \begin{figure}[H]
     \centering
-    %\includegraphics[width=\linewidth]{images/perf_lc.png} % <-- Mets ici ta capture des 6 graphiques de la page 32
-    \caption{Performance dashboard (Efficiency $\eta$ and $V_\mathrm{out}$) for the 1-Diode topology with Lumped LC matching ($f = \SI{2.2}{\giga\hertz}$, $R_L = \SI{20}{\kilo\ohm}$).}
-    \label{fig:perf_lc_6graphs}
+    \includegraphics[width=\linewidth]{images/sch_1d_ms_only.png}
+    \caption{Harmonic Balance simulation schematic for the 1-Diode
+             topology with pure microstrip matching
+             ($f = \SI{2.2}{\giga\hertz}$, $R_L = \SI{10}{\kilo\ohm}$).}
+    \label{fig:sch_1d_ms_only}
 \end{figure}
 
-At our maximum targeted input power ($P_\mathrm{in} = \SI{10}{\dBm}$), the efficiency reaches approximately \textbf{6.69\%}.
+This topology eliminates all SMD components from the matching
+network, replacing them entirely with microstrip line segments. This approach reduces
+assembly complexity, eliminates SMD parasitic effects, and is directly
+transferable from the ADS layout to PCB Gerber files without additional
+tuning.
 
-\paragraph{ Performance of the Full Microstrip Circuit}
-Next, we evaluated the final physical implementation where the matching network relies solely on microstrip lines. The results are shown in Figure~\ref{fig:perf_ms_6graphs}.
+And the performance results dashboard:
 
 \begin{figure}[H]
     \centering
-    %\includegraphics[width=\linewidth]{images/perf_ms.png} % <-- Mets ici ta capture des 6 graphiques de la page 33
-    \caption{Performance dashboard (Efficiency $\eta$ and $V_\mathrm{out}$) for the 1-Diode topology with fully distributed Microstrip matching ($f = \SI{2.2}{\giga\hertz}$, $R_L = \SI{20}{\kilo\ohm}$).}
-    \label{fig:perf_ms_6graphs}
+    \includegraphics[width=\linewidth]{images/res_1d_ms_only.png}
+    \caption{Performance dashboard (Efficiency $\eta$, $V_\mathrm{out}$
+             and $I_\mathrm{out}$) for the 1-Diode topology with pure
+             microstrip matching
+             ($f = \SI{2.2}{\giga\hertz}$, $R_L = \SI{10}{\kilo\ohm}$).}
+    \label{fig:res_1d_ms_only}
 \end{figure}
 
-With the microstrip matching network, the efficiency at $P_\mathrm{in} = \SI{10}{\dBm}$ improves drastically, reaching \textbf{17.15\%}. 
+The pure microstrip matching circuit achieves an efficiency of
+\textbf{17.15\%} at $P_\mathrm{in} = \SI{10}{\text{dBm}}$ (Marker m2),
+with an output voltage of approximately \textbf{\SI{3.2}{\volt}} at
+the same power level.
 
-\paragraph{Efficiency Analysis}
-This significant improvement (from 6.69\% to 17.15\%) can be explained by the physical nature of the matching networks. Ideal lumped inductors and capacitors have inherent parasitic series resistances ($R_s$) that dissipate RF energy as heat. By replacing them with fully distributed microstrip lines on a high-quality RF substrate (Rogers 4350B), we reduce these insertion losses, leading to a higher quality factor (Q) and better energy transfer to the diode.
+Analysis of the six graphs of the pure microstrip dashboard:
+\begin{itemize}
+    \item \textbf{Efficiency vs.\ $P_\mathrm{in}$:}
+    The efficiency peaks at \textbf{17.15\%} at our target
+    $P_\mathrm{in} = \SI{10}{\text{dBm}}$ (Marker m2).
+    This result is way better than the
+    LC version, demonstrating that an
+    optimized distributed matching network performs better than a
+    lumped SMD componoent implementation.
 
-\subsubsection{Adequacy for powering the STTS22H sensor}
+    \item \textbf{Efficiency vs.\ $R_L$:}
+    Evaluated at a constant low input power, the efficiency increases with $R_L$, peaking at approximately \textbf{0.44\%}
+    at $R_L = \SI{31}{\kilo\ohm}$, confirming that this topology also
+    benefits from a high load impedance.
 
-The ultimate goal of this rectifier is to power an STTS22H temperature sensor. According to its datasheet, the sensor requires a supply voltage between \SI{1.5}{\volt} and \SI{3.6}{\volt}, and consumes a maximum active current of \SI{120}{\micro\ampere}. 
+    \item \textbf{$V_\mathrm{out}$ vs.\ $P_\mathrm{in}$:}
+    The output voltage shows a steep rise as the diode
+    reaches its forward voltage drop, reaching approximately
+    \textbf{\SI{3.2}{\volt}} at $P_\mathrm{in} = \SI{10}{\text{dBm}}$.
 
-The absolute minimum DC power required is:
-%
-\begin{equation}
-    P_\mathrm{DC,min}
-    = V_\mathrm{DD,min} \times I_\mathrm{DD,max}
-    = \SI{1.5}{\volt} \times \SI{120}{\micro\ampere}
-    = \SI{180}{\micro\watt}.
-\end{equation}
+    \item \textbf{$I_\mathrm{out}$ vs.\ $P_\mathrm{in}$:}
+    Following Ohm's law, the output current follows the voltage,
+    delivering approximately \textbf{\SI{0.17}{\milli\ampere}} into
+    the \SI{10}{\kilo\ohm} load at $P_\mathrm{in} = \SI{10}{\text{dBm}}$.
 
-Using our final microstrip implementation at an input power of $P_\mathrm{in} = \SI{10}{\dBm}$ (which equals \SI{10}{\milli\watt}), the measured efficiency is $\eta = 17.15\%$. 
-The delivered DC power is therefore:
-\begin{equation}
-    P_\mathrm{DC,delivered} = \SI{10}{\milli\watt} \times 0.1715 = \SI{1.715}{\milli\watt} = \SI{1715}{\micro\watt}.
-\end{equation}
+    \item \textbf{$V_\mathrm{out}$ and $I_\mathrm{out}$ vs.\ $R_L$:}
+    Evaluated at a constant low input power
+    ($P_\mathrm{in} = -\SI{20}{\text{dBm}}$), as the load resistance
+    increases, the output voltage saturates to an open-circuit
+    maximum of approximately \textbf{\SI{40}{\milli\volt}}, while the
+    delivered current satures around \SI{1.7}{\micro\ampere} before
+    approaching zero at high $R_L$ values.
+\end{itemize}
 
-\paragraph{Conclusion}
-The delivered power (\SI{1715}{\micro\watt}) is nearly ten times higher than the strict minimum required (\SI{180}{\micro\watt}). Furthermore, the Harmonic Balance simulation (Figure~\ref{fig:perf_ms_6graphs}) shows that at $P_\mathrm{in} = \SI{10}{\dBm}$, the output voltage $V_\mathrm{out}$ reaches approximately \SI{2.5}{\volt} to \SI{3.0}{\volt}, which sits perfectly within the sensor's safe operating range (\SIrange{1.5}{3.6}{\volt}). 
+% --- Comparison ---
+\subsubsection{Comparative Analysis and Topology Selection}
 
-We can confidently conclude that the one-diode microstrip topology is fully capable of powering the STTS22H sensor under these RF conditions.
+Table~\ref{tab:1d_comparison} summarizes the key performance metrics
+of both matching topologies at $P_\mathrm{in} = \SI{10}{\text{dBm}}$
+and $R_L = \SI{10}{\kilo\ohm}$.
+
+\begin{table}[H]
+    \centering
+    \caption{Performance comparison of the two matching topologies
+             for the 1-Diode series rectifier at
+             $P_\mathrm{in} = \SI{10}{\text{dBm}}$,
+             $R_L = \SI{10}{\kilo\ohm}$, $f = \SI{2.2}{\giga\hertz}$.}
+    \label{tab:1d_comparison}
+    \begin{tabular}{lcc}
+        \toprule
+        \textbf{Metric} &
+        \textbf{LC Circuit} &
+        \textbf{Pure Microstrip} \\
+        \midrule
+        Simulated $\eta$ (\%)        & 6.66
+                                     & \textbf{17.15} \\
+        $V_\mathrm{out}$ at 10\,dBm  & \SI{3.2}{\volt}
+                                     & \textbf{\SI{3.2}{\volt}} \\
+        $I_\mathrm{out}$ at 10\,dBm  & \SI{170}{\micro\ampere}
+                                     & \textbf{\SI{170}{\micro\ampere}} \\
+        $P_\mathrm{DC}$ at 10\,dBm   & \SI{544}{\micro\watt}
+                                     & \textbf{\SI{544}{\micro\watt}} \\
+        Component count              & High
+                                     & \textbf{None} \\
+        Assembly complexity          & High
+                                     & \textbf{Low} \\
+        Sensitivity to tolerances    & High
+                                     & \textbf{Low} \\
+        PCB transferability          & Moderate
+                                     & \textbf{Direct} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Both topologies deliver the same output voltage (\SI{3.2}{\volt})
+and current (\SI{170}{\micro\ampere}) at $P_\mathrm{in} =
+\SI{10}{\text{dBm}}$, corresponding to a DC output power of
+$P_\mathrm{DC} \approx \SI{544}{\micro\watt}$. However, the pure
+microstrip topology achieves this performance with a
+higher efficiency, confirming that SMD
+component parasitics are the dominant loss in this
+implementation at \SI{2.2}{\giga\hertz}.
+
+\textbf{Conclusion:} The \textbf{pure microstrip topology} is the
+best design for physical implementation of the one-diode
+rectifier. It delivers a fully distributed, component-free matching
+network that is robust to manufacturing variability,
+easier to fabricate, and directly transferable from the ADS layout
+to the PCB Gerber files. At $P_\mathrm{in} = \SI{10}{\text{dBm}}$,
+it provides $V_\mathrm{out} \approx \SI{3.2}{\volt}$ within the
+safe operating range of the STTS22H sensor
+(\SIrange{1.5}{3.6}{\volt}), and a DC output power of
+$P_\mathrm{DC} \approx \SI{544}{\micro\watt}$, which comfortably
+exceeds the \SI{180}{\micro\watt} minimum requirement of the
+targeted sensor.
